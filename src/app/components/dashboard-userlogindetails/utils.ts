@@ -7,7 +7,7 @@ export const calculateTotalHours = (loginData = []) => {
     const loginTime: any = new Date(logintime);
     const logoutTime: any = logouttime ? new Date(logouttime) : new Date();
     // const logoutTime: any = logouttime ? new Date(logouttime) : undefined;
-
+    // console.log(session, "loginTime", loginTime, "logoutTime", logoutTime);
     const sessionHours = logoutTime
       ? (logoutTime - loginTime) / (1000 * 60 * 60)
       : 0;

@@ -194,7 +194,9 @@ const TimelogAddNew = ({
         <div className="flex flex-col bg-white shadow-md px-4 sm:px-4 md:px-4 lg:px-4 rounded-md w-full max-w-md min-w-[1400px] min-h-[95vh] max-h-[95vh] overflow-y-auto">
           <div className="flex items-center justify-center">
             <span className="text-2xl font-semibold leading-none text-gray-900 select-none pt-2 mr-auto">
-              <span className="text-indigo-600">Time log for {date}</span>
+              <span className="text-indigo-600">
+                Time log for {date}
+              </span>
             </span>
             <AiOutlineCloseCircle
               onClick={closePopup}

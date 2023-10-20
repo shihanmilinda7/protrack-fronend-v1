@@ -2,19 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/navbar/navbar";
-import { useGlobalContext } from "../globalContext/store";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { useSession } from "next-auth/react";
 import Spinner from "./loading";
 import Link from "next/link";
-import Calendar from "react-calendar";
-import Chatbox from "../components/chatbox/chatbox";
-import { UserListTable } from "../components/chatbox/userlist-table";
 import { DashboardUserLoginTable } from "../components/dashboard-userlogindetails/dashboard-userlogindetails";
 import { webSocket } from "@/web-socket";
 import io from "socket.io-client";
+import UpdateEmptyLogoutSessions from "../components/dashboard-userlogindetails/update-empty-logout-sessions";
 
 type TaskDashBoardObj = {
   taskid?: number;
@@ -25,13 +20,13 @@ type TaskDashBoardObj = {
 };
 
 // const webSocket = io("http://localhost:5000");
-// const webSocket = io(process.env.DEVELOPMENT_SOCKET_URL);
 export default function Dashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
   const tmpUser = session?.user;
   const userRole = session?.user?.role;
+  const userid = session?.user?.userid;
 
   const [logginCount, setLogginCount] = useState(1);
 
@@ -40,31 +35,21 @@ export default function Dashboard() {
   const [projectCount, setProjectCount] = useState("");
   const [projectObject, setProjectbject] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   if (userRole != "User") {
-  //   }
-  // }, [userRole]);
+  const [unlogutSession, setUnlogutSession] = useState([]);
+  const [lastLoginDetails, setLastLoginDetails] = useState([]);
+  const [isLogoutTimeOpen, setIsLogoutTimeOpen] = useState(false);
+  const [saveToggle, setSaveToggle] = useState(false);
 
   useEffect(() => {
-    // if (window.performance && window.performance.getEntriesByType) {
-    //   const navigationEntries =
-    //     window.performance.getEntriesByType("navigation");
-    //   if (navigationEntries.length > 0) {
-    //     const navigationEntry: any = navigationEntries[0];
-    //     if (navigationEntry.type === "navigate") {
-    //       console.log("Page initially loaded");
-    //     } else if (navigationEntry.type === "reload") {
-    //       console.log("Page is being reloaded");
-    //     }
-    //   } else {
-    //     console.log("PerformanceNavigationTiming data not available");
-    //   }
-    // } else {
-    //   console.log(
-    //     "PerformanceNavigationTiming is not supported in this browser"
-    //   );
-    // }
-  }, []);
+    if (userid) {
+      getIfAnyUnlogoutSession();
+    }
+  }, [userid, saveToggle]);
+
+  useEffect(() => {
+    getStaffDetails();
+    getProjectDetails();
+  }, [staffid]);
 
   useEffect(() => {
     webSocket.emit("join_room", "adminroom");
@@ -72,14 +57,6 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    // socket.socket.on("chatMessage", callback);
-
-    // webSocket.on(
-    //   "receive_logging",
-    //   function (data) {
-    //     toggleWs1();
-    //   }.bind(this)
-    // );
     webSocket.on("receive_logging", function (data) {
       setLogginCount((prv) => prv + 1);
     });
@@ -94,25 +71,18 @@ export default function Dashboard() {
     };
   }, []);
 
+  const toggleSave = () => {
+    setSaveToggle((prv: boolean) => !prv);
+  };
+
   const getStaffDetails = async () => {
     const fetchData = async () => {
       const response = await fetch("api/dashboard/get-staff-details");
       const res = await response.json();
       setStaffCount(res.totalStaffCount);
     };
-    // call the function
     fetchData().catch(console.error);
   };
-
-  // const toggleWs1 = () => {
-  //   // setToggleWs((prv: boolean) => !prv);
-  //   setToggleWs((prv: boolean) => {
-  //     console.log("prv", prv);
-  //     prv = !prv;
-  //     console.log("!prv", prv);
-  //     return prv;
-  //   });
-  // };
 
   const getProjectDetails = async () => {
     const fetchData = async () => {
@@ -120,8 +90,27 @@ export default function Dashboard() {
       const res = await response.json();
       setProjectCount(res.totalProjectCount);
     };
-    // call the function
     fetchData().catch(console.error);
+  };
+
+  const getIfAnyUnlogoutSession = async () => {
+    const fetchData = async () => {
+      const response = await fetch(
+        "api/auth/get-empty-logout?userid=" + userid
+      );
+      const res = await response.json();
+      // console.log("res", res);
+      setUnlogutSession(res.inactiveSessionDetails);
+      setLastLoginDetails(res.lastloginDetails);
+      if (res.inactiveSessionDetails.length > 0) {
+        openLogoutTimePopup();
+      }
+    };
+    fetchData().catch(console.error);
+  };
+
+  const openLogoutTimePopup = () => {
+    setIsLogoutTimeOpen(true);
   };
 
   const getAssignedProjectDetails = async () => {
@@ -132,31 +121,12 @@ export default function Dashboard() {
       );
       const res = await reponse.json();
       setProjectbject(res.project);
-      //   setTotalProjectCount(res.totalAssignProjectCount);
     };
-    // call the function
     if (staffid) {
       fetchData().catch(console.error);
     }
   };
 
-  // const getUserList = async () => {
-  //   const fetchData = async () => {
-  //     const reponse = await fetch("api/staff/get-userdata");
-  //     const res = await reponse.json();
-  //     setUserList(res.users);
-  //     //   setTotalProjectCount(res.totalAssignProjectCount);
-  //   };
-
-  //   fetchData().catch(console.error);
-  // };
-
-  useEffect(() => {
-    getStaffDetails();
-    getProjectDetails();
-    // getUserList();
-    // getAssignedProjectDetails();
-  }, [staffid]);
   if (status === "loading") {
     return (
       <div>
@@ -172,7 +142,13 @@ export default function Dashboard() {
   return (
     <div className="bg-slate-200 flex flex-col w-full">
       <Navbar />
-      {/* <Chatbox /> */}
+      <UpdateEmptyLogoutSessions
+        isOpenPopup={isLogoutTimeOpen}
+        logintimeIn={unlogutSession[0]?.logintime}
+        logindetailidIn={unlogutSession[0]?.logindetailid}
+        lastLoginTime={lastLoginDetails[0]?.logintime}
+        toggleSave={toggleSave}
+      />
       <div className="flex w-full">
         <div className="flex flex-col w-[70vw]">
           <h1 className="text-2xl m-4 text-blue-800 font-semibold">

@@ -6,6 +6,7 @@ import timeAllocDateReducer from "./timeAllocDateSlice";
 import yearMonthPickerReducer from "./year-month-pickerSlice";
 import searchReducer from "./searchSlice";
 import userDetailReducer from "./userDetailSlice";
+import projectReducer from "./project/project-slice";
 
 const rootReducer = combineReducers({
   saveReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   yearMonthPickerReducer,
   searchReducer,
   userDetailReducer,
+  projectReducer,
 });
 
 export default rootReducer;

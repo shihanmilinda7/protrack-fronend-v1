@@ -45,7 +45,6 @@ const UpdateEmptyLogoutSessions = ({
 
   const [datetime, setDatetime] = useState("");
   const [logintime, setLogintime] = useState("");
-  const [saveDate, setSaveDate] = useState(false);
 
   const currentTimestamp = new Date();
   const formattedDatecurrentTimestamp = format(
@@ -89,7 +88,7 @@ const UpdateEmptyLogoutSessions = ({
     setIsOpen(isOpenPopup);
   }, [isOpenPopup]);
 
-  useEffect(() => {
+  const sumbitDateHandler = async () => {
     const val1: any = new Date(logintimeIn);
     const val2: any = new Date(datetime);
     const val3: any = new Date(lastLoginTime);
@@ -106,11 +105,10 @@ const UpdateEmptyLogoutSessions = ({
         progress: undefined,
         theme: "colored",
       });
-      setSaveDate(false);
     } else {
-      setSaveDate(true);
+      await sumbitDate();
     }
-  }, [datetime]);
+  };
 
   const sumbitDate = async () => {
     const Date_Time = datetime;
@@ -119,36 +117,18 @@ const UpdateEmptyLogoutSessions = ({
     });
     try {
       if (validation == 0) {
-        if (saveDate) {
-          const response = await fetch(
-            pathname + "/api/auth/get-empty-logout",
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userid,
-                datetime,
-                logindetailidIn,
-              }),
-            }
-          );
-          const jsonResponse = await response.json();
-          if (jsonResponse == "SUCCESS") {
-            toast.success("Successfully updated!", {
-              position: "top-right",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            });
-            toggleSave();
-            setIsOpen(false);
-          }
-        } else {
-          toast.info("Invalid input!", {
+        const response = await fetch(pathname + "/api/auth/get-empty-logout", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userid,
+            datetime,
+            logindetailidIn,
+          }),
+        });
+        const jsonResponse = await response.json();
+        if (jsonResponse == "SUCCESS") {
+          toast.success("Successfully updated!", {
             position: "top-right",
             autoClose: 1000,
             hideProgressBar: false,
@@ -158,6 +138,8 @@ const UpdateEmptyLogoutSessions = ({
             progress: undefined,
             theme: "colored",
           });
+          toggleSave();
+          setIsOpen(false);
         }
       }
     } catch (error) {
@@ -210,7 +192,7 @@ const UpdateEmptyLogoutSessions = ({
             </div>
             <div className="flex items-center justify-end mt-3">
               <div>
-                <Button color="primary" onClick={sumbitDate}>
+                <Button color="primary" onClick={sumbitDateHandler}>
                   Sumbit
                 </Button>
               </div>

@@ -404,6 +404,7 @@ export default function NewProject() {
                 updateMainScreen={toggleAssignSave}
               />
             )}
+            {JSON.stringify(taskRowObjects)}
           </div>
           <div className="flex items-center justify-center p-2">
             <div className="mx-auto w-full flex flex-wrap">

@@ -23,6 +23,8 @@ import NextAutoFocusTextInputField from "../common-comp/nextui-input-fields/next
 import NextTextInputField from "../common-comp/nextui-input-fields/next-text-input-fields";
 import NextDateInputField from "../common-comp/nextui-input-fields/next-date-input-fields";
 import IconConfirmAlertbox from "../common-comp/icon-confirm-alertbox";
+import { TaskItemTable } from "./taskitem-table";
+import { useSelector } from "react-redux";
 
 const NewProjectTask = ({
   arrayUpdateFuntion,
@@ -41,6 +43,10 @@ const NewProjectTask = ({
   buttonName: string;
   delButton?: boolean;
 }) => {
+  const taskItemList = useSelector(
+    (state: any) => state.projectReducer.taskItemList
+  );
+
   const [isOpen, setIsOpen] = useState(false);
 
   const [taskid, setTaskid] = useState(selRowObject?.taskid ?? "");
@@ -86,7 +92,14 @@ const NewProjectTask = ({
       setIsOpen(false);
       // setIsOpen(false);
       arrayUpdateFuntion(
-        { taskname, taskdescription, startdate, enddate, show: true },
+        {
+          taskname,
+          taskdescription,
+          startdate,
+          enddate,
+          show: true,
+          taskitems: taskItemList,
+        },
         index
       );
     }
@@ -184,7 +197,7 @@ const NewProjectTask = ({
           <h1 className="text-2xl text-blue-800">{buttonName}</h1>
         </div>
         <div className="flex items-center justify-center">
-          <div className="mx-auto w-full min-w-[550px] p-6">
+          <div className="mx-auto w-full min-w-[550px] p-6 max-h-[600px] overflow-y-auto">
             <div className="flex flex-wrap">
               <div className="w-full flex flex-col gap-3">
                 <NextAutoFocusTextInputField
@@ -209,7 +222,10 @@ const NewProjectTask = ({
                 />
               </div>
             </div>
-            <h1>{JSON.stringify(selectedValue)}</h1>
+            <div className="mt-2">
+              <TaskItemTable taskItemRowIn={[]} />
+            </div>
+            {/* <h1>{JSON.stringify(selectedValue)}</h1> */}
             {/* <div className="max-w-[550px]">
               <Accordion
                 showDivider={false}

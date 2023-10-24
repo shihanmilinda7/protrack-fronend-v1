@@ -44,7 +44,7 @@ export const TimelogTaskTableRow = ({
   const [tableRow, setTableRow] = useState(timelogRowIn);
   const [tableRows, setTableRows] = useState(timelogRowsIn);
   const [assignTasks, setAssignTasks] = useState([]);
-
+  const [taskItems, setTaskItems] = useState([]);
 
   useEffect(() => {
     const q = { ...timelogRowIn };
@@ -52,6 +52,9 @@ export const TimelogTaskTableRow = ({
 
     if (q.projectid) {
       getAssignTasks(q.projectid, staffid);
+    }
+    if (q.taskid) {
+      getTasksItems(q.taskid);
     }
   }, [timelogRowIn]);
 
@@ -64,26 +67,43 @@ export const TimelogTaskTableRow = ({
     updateData({
       ...tableRow,
       projectid: e.target.value,
+      taskitemid: "",
       taskid: "",
     });
     if (e.target.value) {
       getAssignTasks(e.target.value, staffid);
+    } else {
+      setTaskItems([]);
+      setAssignTasks([]);
     }
   };
 
   const taskSelectEvent = (e) => {
-    // console.log("timelogRowsIn",timelogRowsIn,)
+    updateData({
+      ...tableRow,
+      taskid: e.target.value,
+      taskitemid: "",
+    });
+    if (e.target.value) {
+      getTasksItems(e.target.value);
+    } else {
+      setTaskItems([]);
+    }
+  };
+
+  const taskItemSelectEvent = (e) => {
     const result = tableRows.find(
       (t) =>
-        t.taskid === e.target.value || t.taskid === parseInt(e.target.value)
+        t.taskitemid === e.target.value ||
+        t.taskitemid === parseInt(e.target.value)
     );
     if (!result) {
       updateData({
         ...tableRow,
-        taskid: e.target.value,
+        taskitemid: e.target.value,
       });
     } else {
-      toast.error("Task already selected!", {
+      toast.error("Task item already selected!", {
         position: "top-right",
         autoClose: 1000,
         hideProgressBar: false,
@@ -110,6 +130,18 @@ export const TimelogTaskTableRow = ({
       name: p.taskname,
     }));
     setAssignTasks(modifiedAssignTasksData);
+  };
+
+  const getTasksItems = async (taskid?: number) => {
+    const reponse = await fetch(
+      pathname + "/api/timelogs/get-tasks-items?taskid=" + taskid
+    );
+    const res = await reponse.json();
+    const modifiedTaskItemsData = res.taskItems?.map((p) => ({
+      value: p.taskitemid,
+      name: p.description,
+    }));
+    setTaskItems(modifiedTaskItemsData);
   };
 
   const handleFocus = (event) => {
@@ -163,6 +195,32 @@ export const TimelogTaskTableRow = ({
         />
       </td>
       <td className="text-left py-1 px-4 w-40">
+        <NextSelectInputField
+          label=""
+          value={
+            tableRow.taskitemid
+              ? new Set([tableRow.taskitemid.toString()])
+              : new Set([])
+          }
+          onChange={(e) => taskItemSelectEvent(e)}
+          optionValues={taskItems}
+        />
+      </td>
+      <td className="text-left py-1 px-4 w-40">
+        <div className="flex flex-row ">
+          <Input
+            type="number"
+            variant="flat"
+            label=""
+            size="lg"
+            placeholder="Type here..."
+            value={tableRow.count}
+            onChange={(e) => updateData({ ...tableRow, count: e.target.value })}
+            onFocus={handleFocus}
+          />
+        </div>
+      </td>
+      <td className="text-left py-1 px-4 w-40">
         <div className="flex flex-row ">
           <Input
             type="number"
@@ -174,16 +232,6 @@ export const TimelogTaskTableRow = ({
             onChange={(e) => updateData({ ...tableRow, time: e.target.value })}
             onFocus={handleFocus}
           />
-          {/* <input
-            id="time"
-            name="time"
-            type="number"
-            autoComplete=""
-            className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-            value={tableRow.time}
-            onChange={(e) => updateData({ ...tableRow, time: e.target.value })}
-            onFocus={handleFocus}
-          /> */}
         </div>
       </td>
       <td className="text-left py-1 px-4 w-60">

@@ -16,11 +16,14 @@ import { useEffect, useState } from "react";
 import { AiFillPlusCircle, AiOutlineUndo } from "react-icons/ai";
 import { TaskItemTableRow } from "./taskitem-tablerow";
 import { setTaskItemList } from "@/store/project/project-slice";
+import { useSelector } from "react-redux";
 
 export const TaskItemTable = ({
-  taskItemRowIn = [],
+  taskitems,
+  updateTaskItems,
 }: {
-  taskItemRowIn: any[];
+  taskitems: any[];
+  updateTaskItems: (list) => void;
 }) => {
   let pathname: string = "";
 
@@ -36,22 +39,21 @@ export const TaskItemTable = ({
   }
 
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const [tableData, setTableData] = useState([]);
-
   const [lastRemovedRow, setLastRemovedRow] = useState(null);
+
   const [tableUpdate, setTableUpdate] = useState(false);
 
-  useEffect(() => {}, [tableData]);
-
   useEffect(() => {
-    const q = [...taskItemRowIn];
+    const q = [...taskitems];
     setTableData(q);
-  }, [taskItemRowIn]);
+  }, [taskitems]);
 
   useEffect(() => {
-    dispatch(setTaskItemList(tableData));
+    if (tableData.length > 0) {
+      updateTaskItems(tableData);
+    }
   }, [tableUpdate]);
 
   const addRowFromHeader = () => {
@@ -113,7 +115,6 @@ export const TaskItemTable = ({
 
   return (
     <div className="md:px-2 py-1 sm:w-3/3 w-full">
-      {/* Data - {JSON.stringify(tableData)} */}
       <div className="shadow rounded-lg border-b border-gray-200 w-full">
         <table className="min-w-full bg-white">
           <thead className="">

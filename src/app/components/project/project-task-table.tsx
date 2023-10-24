@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import NewProjectTask from "./project-task-addnew";
 import { TaskObjectTypes } from "./types";
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -28,27 +27,24 @@ export const ProjectTaskTable = ({
   const { data: session, status } = useSession();
   const userRole = session?.user?.role;
 
-  const tableHeads = [
-    "#",
-    "Task Name",
-    "Task Description",
-    "Start Date",
-    "End Date",
-    "Assigned members",
-    " ",
-  ];
   return (
     <div className="md:px-2 py-2 sm:w-5/5 w-full">
       <div className="shadow rounded border-b border-gray-200 w-full">
         <Table isStriped aria-label="Example static collection table">
           <TableHeader>
-            {tableHeads.map((head) => (
-              <TableColumn key={head}>{head}</TableColumn>
-            ))}
+            <TableColumn>#</TableColumn>
+            <TableColumn>Task Name</TableColumn>
+            <TableColumn>Task Description</TableColumn>
+            <TableColumn>Start Date</TableColumn>
+            <TableColumn>End Date</TableColumn>
+            <TableColumn>Task items</TableColumn>
+            <TableColumn>Assigned members</TableColumn>
+            <TableColumn>-</TableColumn>
           </TableHeader>
           <TableBody>
             {taskRowObjects?.map((tableRow: any, index: number) =>
-              tableRow.hasOwnProperty("rowStatus") || tableRow.show == false ? null : (
+              tableRow.hasOwnProperty("rowStatus") ||
+              tableRow.show == false ? null : (
                 <TableRow key={tableRow.taskid} className="">
                   <TableCell className="w-10">{index + 1}</TableCell>
                   <TableCell className="w-40">
@@ -65,6 +61,16 @@ export const ProjectTaskTable = ({
                   </TableCell>
                   <TableCell className="w-40">{tableRow.startdate}</TableCell>
                   <TableCell className="w-40">{tableRow.enddate}</TableCell>
+                  <TableCell className="w-40">
+                    {tableRow.taskitems &&
+                      tableRow.taskitems.map((t) => (
+                        <ul key={t.description}>
+                          <li>
+                            {t.description} - {t.estimatecount}
+                          </li>
+                        </ul>
+                      ))}
+                  </TableCell>
                   <TableCell className="w-60">
                     <Tooltip
                       color={`${

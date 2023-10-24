@@ -2,7 +2,7 @@
 
 import Modal from "react-modal";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TaskObjectTypes } from "./types";
 import { inputFieldValidation } from "@/app/utils/utils";
 import {
@@ -25,6 +25,8 @@ import NextDateInputField from "../common-comp/nextui-input-fields/next-date-inp
 import IconConfirmAlertbox from "../common-comp/icon-confirm-alertbox";
 import { TaskItemTable } from "./taskitem-table";
 import { useSelector } from "react-redux";
+import { setTaskItemList } from "@/store/project/project-slice";
+import { useDispatch } from "react-redux";
 
 const NewProjectTask = ({
   arrayUpdateFuntion,
@@ -38,14 +40,12 @@ const NewProjectTask = ({
     index?: number,
     options?: { deleteTask?: boolean; deltaskid?: number }
   ) => void;
-  selRowObject?: TaskObjectTypes;
+  selRowObject?: any;
   index?: number;
   buttonName: string;
   delButton?: boolean;
 }) => {
-  const taskItemList = useSelector(
-    (state: any) => state.projectReducer.taskItemList
-  );
+  const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,6 +56,7 @@ const NewProjectTask = ({
   );
   const [startdate, setStartdate] = useState(selRowObject?.startdate ?? "");
   const [enddate, setEnddate] = useState(selRowObject?.enddate ?? "");
+  const [taskitems, setTaskitems] = useState(selRowObject?.taskitems ?? []);
 
   const customStyles = {
     overlay: {
@@ -81,6 +82,14 @@ const NewProjectTask = ({
     content: "text-small px-2",
   };
 
+  useEffect(() => {
+    setTaskitems(selRowObject?.taskitems ?? []);
+  }, [selRowObject]);
+
+  const updateTaskItems = async (list) => {
+    setTaskitems(list);
+  };
+
   const addnewOrupdate = () => {
     const validation = inputFieldValidation({
       taskname,
@@ -98,12 +107,19 @@ const NewProjectTask = ({
           startdate,
           enddate,
           show: true,
-          taskitems: taskItemList,
+          taskitems,
         },
         index
       );
     }
 
+    // setTaskid("");
+    // setTaskname("");
+    // setTaskdescription("");
+    // setStartdate("");
+    // setEnddate("");
+    // setTaskitems([]);
+    // selRowObject = [];
     // setLabel("");
     // setType("")
   };
@@ -223,7 +239,10 @@ const NewProjectTask = ({
               </div>
             </div>
             <div className="mt-2">
-              <TaskItemTable taskItemRowIn={[]} />
+              <TaskItemTable
+                taskitems={taskitems}
+                updateTaskItems={updateTaskItems}
+              />
             </div>
             {/* <h1>{JSON.stringify(selectedValue)}</h1> */}
             {/* <div className="max-w-[550px]">

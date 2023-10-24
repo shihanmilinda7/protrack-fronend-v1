@@ -78,6 +78,20 @@ export const getProjectTasks = async (projectid) => {
   return rows;
 };
 
+export const getProjectTaskItems = async (taskid) => {
+  let rows;
+  const transaction = db.transaction(() => {
+    try {
+      const query = `SELECT * FROM taskitems WHERE taskid = ?;`;
+      rows = db.prepare(query).all(taskid);
+    } catch (error) {
+      console.error("Transaction error:", error);
+    }
+  });
+  transaction();
+  return rows;
+};
+
 export const newProject = async (
   projectname,
   projectdescription,
@@ -114,13 +128,27 @@ export const newProject = async (
           startdate,
           enddate) VALUES (?,?,?,?,?);`;
 
-        db.prepare(query2).run(
-          project.lastInsertRowid,
-          element.taskname,
-          element.taskdescription,
-          element.startdate,
-          element.enddate
-        );
+        const tmpTask = db
+          .prepare(query2)
+          .run(
+            project.lastInsertRowid,
+            element.taskname,
+            element.taskdescription,
+            element.startdate,
+            element.enddate
+          );
+
+        const query3 = db.prepare(`INSERT INTO taskitems (taskid,
+          description,
+          estimatecount) VALUES (?,?,?);`);
+
+        for (const record of element.taskitems) {
+          query3.run(
+            tmpTask.lastInsertRowid,
+            record.description,
+            record.estimatecount
+          );
+        }
       }
     } catch (error) {
       console.error("Transaction error:", error);
@@ -157,6 +185,17 @@ export const updateProject = async (
         projectid
       );
 
+      //////////////////////////////////////////////////
+      const inserQuery = db.prepare(
+        `INSERT INTO taskitems (taskid,description,estimatecount) VALUES (?,?,?);`
+      );
+      const updateQuery = db.prepare(
+        `UPDATE taskitems SET description = ?,estimatecount = ? WHERE taskitemid = ?;`
+      );
+      const deleteQuery = db.prepare(
+        `DELETE FROM taskitems WHERE taskitemid = ?;`
+      );
+      //////////////////////////////////////////////////
       for (let i = 0; i < taskRowObjects.length; i++) {
         const element = taskRowObjects[i];
         if (element.rowStatus != "deleted") {
@@ -176,6 +215,24 @@ export const updateProject = async (
               element.enddate,
               element.taskid
             );
+
+            for (const record of element.taskitems) {
+              if (record.rowstatus == "a") {
+                inserQuery.run(
+                  element.taskid,
+                  record.description,
+                  record.estimatecount
+                );
+              } else if (record.rowstatus == "u") {
+                updateQuery.run(
+                  record.description,
+                  record.estimatecount,
+                  record.taskitemid
+                );
+              } else if (record.rowstatus == "d") {
+                deleteQuery.run(record.taskitemid);
+              }
+            }
           } else {
             const query3 = `INSERT INTO projecttasks (projectid,
               taskname,
@@ -183,17 +240,30 @@ export const updateProject = async (
               startdate,
               enddate) VALUES (?,?,?,?,?);`;
 
-            db.prepare(query3).run(
-              projectid,
-              element.taskname,
-              element.taskdescription,
-              element.startdate,
-              element.enddate
-            );
+            const tmpTask = db
+              .prepare(query3)
+              .run(
+                projectid,
+                element.taskname,
+                element.taskdescription,
+                element.startdate,
+                element.enddate
+              );
+
+            for (const record of element.taskitems) {
+              inserQuery.run(
+                tmpTask.lastInsertRowid,
+                record.description,
+                record.estimatecount
+              );
+            }
           }
         } else {
           const query4 = `DELETE FROM projecttasks WHERE taskid = ?;`;
           db.prepare(query4).run(element.taskid);
+
+          const query5 = `DELETE FROM taskitems WHERE taskid = ?;`;
+          db.prepare(query5).run(element.taskid);
         }
       }
     } catch (error) {

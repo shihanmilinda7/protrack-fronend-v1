@@ -4,13 +4,20 @@ export const calculateTotalHours = (loginData = []) => {
   loginData.forEach((session) => {
     const { userid, logintime, logouttime } = session;
 
-    const loginTime: any = new Date(logintime);
-    const logoutTime: any = logouttime ? new Date(logouttime) : new Date();
-    // const logoutTime: any = logouttime ? new Date(logouttime) : undefined;
-    // console.log(session, "loginTime", loginTime, "logoutTime", logoutTime);
-    const sessionHours = logoutTime
-      ? (logoutTime - loginTime) / (1000 * 60 * 60)
+    const tmploginTime: any = new Date(logintime);
+    const tmplogoutTime: any = logouttime ? new Date(logouttime) : new Date();
+
+    // console.log("tmploginTime", tmploginTime);
+    // console.log("tmplogoutTime", tmplogoutTime);
+    console.log("new Date()", new Date(), tmploginTime);
+    // const tmplogoutTime: any = logouttime ? new Date(logouttime) : undefined;
+    // console.log(session, "tmploginTime", tmploginTime, "tmplogoutTime", tmplogoutTime);
+    const sessionHours = tmplogoutTime
+      ? (tmplogoutTime - tmploginTime) / (1000 * 60 * 60)
       : 0;
+
+    // console.log("sessionHours", sessionHours);
+    // console.log("userid", userid);
 
     if (!userTotalHours[userid]) {
       userTotalHours[userid] = { hours: 0, minutes: 0 };
@@ -32,7 +39,7 @@ export const calculateTotalHours = (loginData = []) => {
       };
     }
   );
-
+  // console.log("mappedData", mappedData);
   return mappedData;
 };
 
@@ -42,12 +49,12 @@ export const calculateTotalHours = (loginData = []) => {
 //   loginData.forEach((session) => {
 //     const { userid, logintime, logouttime } = session;
 
-//     const loginTime: any = new Date(logintime);
-//     const logoutTime: any = logouttime ? new Date(logouttime) : undefined;
+//     const tmploginTime: any = new Date(logintime);
+//     const tmplogoutTime: any = logouttime ? new Date(logouttime) : undefined;
 
-//     const sessionHours = logoutTime
-//       ? (logoutTime - loginTime) / (1000 * 60 * 60)
-//       : 0; // Handle undefined logoutTime
+//     const sessionHours = tmplogoutTime
+//       ? (tmplogoutTime - tmploginTime) / (1000 * 60 * 60)
+//       : 0; // Handle undefined tmplogoutTime
 
 //     if (!userTotalHours[userid]) {
 //       userTotalHours[userid] = { hours: 0, minutes: 0 };

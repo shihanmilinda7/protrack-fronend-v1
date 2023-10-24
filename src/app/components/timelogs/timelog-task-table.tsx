@@ -57,6 +57,8 @@ export const TimelogTaskTable = ({
       rowindex: newRowId,
       projectid: "",
       taskid: "",
+      taskitemid: "",
+      count: 0,
       time: 0,
       remark: "",
     };
@@ -76,6 +78,8 @@ export const TimelogTaskTable = ({
       rowindex: newRowId,
       projectid: "",
       taskid: "",
+      taskitemid: "",
+      count: 0,
       time: 0,
       remark: "",
     };
@@ -135,7 +139,7 @@ export const TimelogTaskTable = ({
     const filteredArray = timelogRows.filter(
       (item) =>
         (item.projectid == "" || item.taskid == "" || item.time == 0) &&
-        (item.rowstatus != "r")
+        item.rowstatus != "r"
     );
     if (filteredArray.length == 0) {
       try {
@@ -224,6 +228,12 @@ export const TimelogTaskTable = ({
               </th>
               <th className="w-40 text-left py-5 px-4 text-sm font-bold">
                 Task
+              </th>
+              <th className="w-40 text-left py-5 px-4 text-sm font-bold">
+                Task Item
+              </th>
+              <th className="w-40 text-left py-5 px-4 text-sm font-bold">
+                Count
               </th>
               <th className="w-40 text-left py-5 px-4 text-sm font-bold">
                 Time (Hours)

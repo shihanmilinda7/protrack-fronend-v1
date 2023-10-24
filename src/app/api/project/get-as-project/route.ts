@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   deleteProject,
   getProjectHeaderData,
+  getProjectTaskItems,
   getProjectTasks,
   newProject,
   updateProject,
@@ -24,6 +25,14 @@ export async function GET(request: Request) {
         const element = projectTasks[index];
         const assignMembers: any = await getTaskAssignStaff(element.taskid);
         element["assignmembers"] = assignMembers;
+
+        const taskitems: any = await getProjectTaskItems(element.taskid);
+        const updatedData = taskitems.map((item, index) => ({
+          ...item,
+          rowindex: index + 1,
+          rowstatus: "u",
+        }));
+        element["taskitems"] = updatedData;
       }
       res = { message: "SUCCESS", project, projectTasks };
     } else {

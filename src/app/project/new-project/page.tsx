@@ -26,6 +26,9 @@ import SearchFilter from "@/app/components/common-comp/input-fields/search-filte
 import { FaSearch } from "react-icons/fa";
 import IconConfirmAlertbox from "@/app/components/common-comp/icon-confirm-alertbox";
 
+import timezones from "timezones-list";
+import { useSelector } from "react-redux";
+
 export default function NewProject() {
   //get pathname
   let pathname: string = "";
@@ -50,6 +53,10 @@ export default function NewProject() {
   //define state variables
   // const [reloadTable, setReloadTable] = useState(false);
 
+  const taskItemList = useSelector(
+    (state: any) => state.projectReducer.taskItemList
+  );
+
   const searchParams = useSearchParams();
   const selProjectid = searchParams.get("projectid");
 
@@ -63,6 +70,15 @@ export default function NewProject() {
   const [search, setSearch] = useState("");
   const [taskRowObjects, setTaskRowObjects] = useState<any[]>([]);
   const [updateScreen, setUpdateScreen] = useState(false);
+
+  /////////////////////
+  const [userTimeZone, setUserTimeZone] = useState<string | null>(null);
+
+  useEffect(() => {
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setUserTimeZone(userTimeZone);
+  }, []);
+  //////////////////////
 
   const toggleAssignSave = () => {
     setUpdateScreen((prv: boolean) => !prv);
@@ -114,8 +130,19 @@ export default function NewProject() {
 
   //for states update
   useEffect(() => {
-    // declare the data fetching function
+    // // declare the data fetching function
+    // const timeZone = "America/New_York";
 
+    // // Create a new Date object with the specified time zone
+    // const date = new Date();
+    // const options: any = { timeZone, timeStyle: "long", hour12: false };
+    // const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
+    //   date
+    // );
+
+    // console.log(`Current time in ${timeZone}: ${formattedDate}`);
+    // console.log("timezones", timezones);
+    /////////////////////////////////////////////
     if (selProjectid) {
       const fetchData = async () => {
         const reponse = await fetch(
@@ -137,7 +164,6 @@ export default function NewProject() {
         projectTasks = projectTasks.map((t) => {
           return { ...t, show: true };
         });
-
         setTaskRowObjects(projectTasks);
         // setPageReload(true)  project.projectstatus
       };
@@ -390,6 +416,13 @@ export default function NewProject() {
               >
                 Go back
               </Button>
+              {/* <div>
+                {userTimeZone ? (
+                  <p>User Time Zone: {userTimeZone}</p>
+                ) : (
+                  <p>Loading...</p>
+                )}
+              </div> */}
             </div>
             <span className="text-2xl font-semibold leading-none text-gray-900 select-none pt-2 mr-auto">
               <span className="text-indigo-600">
@@ -404,7 +437,6 @@ export default function NewProject() {
                 updateMainScreen={toggleAssignSave}
               />
             )}
-            {JSON.stringify(taskRowObjects)}
           </div>
           <div className="flex items-center justify-center p-2">
             <div className="mx-auto w-full flex flex-wrap">

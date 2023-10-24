@@ -92,7 +92,9 @@ export const updateTimelog = async (
             projectid = ?,
             taskid = ?,
             time = ?,
-            remark = ?
+            remark = ?,
+            taskitemid = ?,
+            count = ?
           WHERE timelogdetailid = ?;`;
 
           db.prepare(query3).run(
@@ -101,11 +103,13 @@ export const updateTimelog = async (
             element.taskid,
             element.time,
             element.remark,
+            element.taskitemid,
+            element.count,
             parseInt(element.timelogdetailid)
           );
         } else if (element.rowstatus == "a") {
-          const query4 = `INSERT INTO timelogsdetails (timelogid, rowindex, projectid, taskid, time, remark)
-          VALUES (?, ?, ?, ?, ?, ?);`;
+          const query4 = `INSERT INTO timelogsdetails (timelogid, rowindex, projectid, taskid, time, remark,taskitemid,count)
+          VALUES (?, ?, ?, ?, ?, ?,?,?);`;
 
           db.prepare(query4).run(
             headerId,
@@ -113,7 +117,9 @@ export const updateTimelog = async (
             element.projectid,
             element.taskid,
             element.time,
-            element.remark
+            element.remark,
+            element.taskitemid,
+            element.count
           );
         } else if (element.rowstatus == "d") {
           const query5 = `DELETE FROM timelogsdetails

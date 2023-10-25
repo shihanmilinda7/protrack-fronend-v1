@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
           if (user.length == 0) {
             return null;
           }
-
+          console.log("user", user);
           if (user.length > 0) {
             const user1 = user[0];
             const tmpPassword = credentials?.password;

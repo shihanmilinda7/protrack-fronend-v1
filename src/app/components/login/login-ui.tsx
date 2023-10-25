@@ -42,8 +42,6 @@ const Login = () => {
     // console.log("session", session);
   }, [session]);
 
-
-
   // const { userId, setUserId, data, setData } = useGlobalContext();
 
   const togglePasswordVisibility = () => {
@@ -73,6 +71,7 @@ const Login = () => {
         password,
         redirect: false,
       });
+      console.log("response", response);
       if (response?.error) {
         toast.error("Username or Password Incorrect!", {
           position: "top-right",

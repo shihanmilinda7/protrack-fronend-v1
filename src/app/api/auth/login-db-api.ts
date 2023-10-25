@@ -7,6 +7,7 @@ export const login = async (username) => {
     try {
       const query = `SELECT * FROM users WHERE username = ?;`;
       rows = db.prepare(query).all(username);
+      console.log("rows",rows,)
     } catch (error) {
       console.error("Transaction error:", error);
     }

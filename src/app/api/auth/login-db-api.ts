@@ -3,11 +3,12 @@ import { format } from "date-fns";
 
 export const login = async (username) => {
   let rows;
+  console.log("username", username);
   const transaction = db.transaction(() => {
     try {
       const query = `SELECT * FROM users WHERE username = ?;`;
       rows = db.prepare(query).all(username);
-      console.log("rows",rows,)
+      console.log("rows", rows);
     } catch (error) {
       console.error("Transaction error:", error);
     }

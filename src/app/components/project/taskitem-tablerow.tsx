@@ -32,9 +32,7 @@ export const TaskItemTableRow = ({
   };
   return (
     <tr className="even:bg-purple-gray-50/50">
-      <td className="text-center py-1 px-4">
-        {index + 1} - {tableRow.rowindex}
-      </td>
+      <td className="text-center py-1 px-4">{index + 1}</td>
       <td className="text-center py-1 px-4">
         <input
           id="description"

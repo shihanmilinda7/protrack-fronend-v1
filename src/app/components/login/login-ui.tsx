@@ -211,12 +211,12 @@ const Login = () => {
                     <span className="text-gray-500 pr-2">
                       {showPassword ? (
                         <AiFillEyeInvisible
-                          className="inline-block h-6 w-6"
+                          className="inline-block h-6 w-6 cursor-pointer"
                           onClick={togglePasswordVisibility}
                         />
                       ) : (
                         <AiFillEye
-                          className="inline-block h-6 w-6"
+                          className="inline-block h-6 w-6 cursor-pointer"
                           onClick={togglePasswordVisibility}
                         />
                       )}
